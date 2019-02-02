@@ -1,0 +1,88 @@
+<!DOCTYPE >
+<html>
+  <head>
+    <title>Chuck Norris</title>
+    <style>
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="titleText">Chuck Norris</h1>
+    <div id="div">
+      <button id="getQuotes">Get Quotes!</button>
+    </div>
+    <div>
+      <h3>Quotes</h3>
+      <label for="filterInput">Filter Quotes</label>
+      <input id="filterInput" type="text" />
+      <div id="quotes"></div>
+    </div>
+    <script>
+      // This is our button that we'll click to get more quotes
+      const getQuotesButton = document.getElementById('getQuotes')
+
+      // This is our input field that will allow us to search existing quotes
+      const filterInput = document.getElementById('filterInput')
+
+      // This is the div that will store all of our quotes
+      const quotes = document.getElementById('quotes')
+
+      // We're going to add an EventListener to our button that listens for a 'click' event
+      // We want to get Chuck Norris quotes when a user clicks the button
+      getQuotesButton.addEventListener('click', () => {
+        // We'll use the Fetch API to get quotes
+        // You can read about it here: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+        fetch('http://api.icndb.com/jokes/random')
+          .then(res => res.json())
+          .then(res => {
+            // Create DOM elements to store the new quote
+            const quoteDiv = document.createElement('div')
+            const quoteText = document.createElement('p')
+
+            // Set the text of the <p> element to be the joke value
+            quoteText.innerHTML = res.value.joke
+
+            // Check to see if the new quote should be filtered out
+            // indexOf returns the index of the matched string
+            // If the string isn't found it returns -1
+            // If we get -1 we want to hide that from displaying by adding the class 'hidden'
+            if (quoteText.innerHTML.toLowerCase().indexOf(filterInput.value.toLowerCase()) === -1)
+              quoteText.classList.add('hidden')
+
+            // Add the elements to the actual document with appendChild
+
+            // First add the <p> element to the surrounding <div>
+            quoteDiv.appendChild(quoteText)
+            // Second add both of them to the main quote <div>
+            quotes.appendChild(quoteDiv)
+          })
+          .catch(error => console.log({error}))
+      })
+
+      filterInput.addEventListener('keyup', event => {
+        // our input value is stored here
+        const filterText = event.target.value
+
+        // We'll use querySelectorAll to get all of the nested <p> elements (the quote text) from our quotes
+        const allQuoteText = quotes.querySelectorAll('p')
+
+        // We'll iterate over the quotes and hide the ones that don't contain our search text
+        // querySelectorAll returns a node list instead of an array
+        // The available methods on a node list are different than those on an array
+        // We could either convert to an array with Array.from(allQuoteText).arrayMethod...
+        // or we can iterate over the node list with forEach
+        allQuoteText.forEach(quote => {
+          // We'll use a ternary to filter the quotes
+          // Both the quote and the filter text are converted to lower case before checking
+          // If the text is found we remove the 'hidden' class
+          // If the text isn't found we add the 'hidden' class
+          quote.innerHTML.toLowerCase().includes(filterText.toLowerCase())
+            ? quote.classList.remove('hidden')
+            : quote.classList.add('hidden')
+        })
+      })
+    </script>
+  </body>
+</html>
